@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Графік руху</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+<h2>Графік руху</h2>
+
+<div class="container">
+    <label>x₀ <input type="number" id="x0" value="0"></label>
+    <label>y₀ <input type="number" id="y0" value="0"></label>
+    <label>v₀ <input type="number" id="v0" value="20"></label>
+    <label>кут <input type="number" id="angle" value="45"></label>
+    <label>a <input type="number" id="a" value="0"></label>
+    <label>t <input type="number" id="tmax" value="10"></label>
+    <label>колір <input type="color" id="color" value="#ff0000"></label>
+
+    <br><br>
+
+    <button onclick="build()">Додати лінію</button>
+    <button onclick="clearChart()">Очистити</button>
+</div>
+
+<div id="chart"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

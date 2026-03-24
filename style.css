@@ -1,0 +1,27 @@
+body {
+    font-family: Arial;
+    background: #1e1e1e;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    margin: 20px;
+}
+
+input {
+    margin: 5px;
+    padding: 5px;
+}
+
+button {
+    padding: 8px 15px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+#chart {
+    background: white;
+    display: inline-block;
+    margin-top: 20px;
+}
