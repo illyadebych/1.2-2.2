@@ -1,108 +1,109 @@
-let allData = [];
+function draw() {
+    // 1. Отримання даних
+    const v0 = parseFloat(document.getElementById("v0").value);
+    const angleDeg = parseFloat(document.getElementById("angle").value);
+    const g = parseFloat(document.getElementById("g_val").value);
+    const angleRad = angleDeg * (Math.PI / 180);
 
-function build() {
+    // 2. Фізичні розрахунки
+    const timeFlight = (2 * v0 * Math.sin(angleRad)) / g;
+    const maxHeight = (Math.pow(v0 * Math.sin(angleRad), 2)) / (2 * g);
+    const maxRange = (Math.pow(v0, 2) * Math.sin(2 * angleRad)) / g;
 
-    let x0 = +document.getElementById("x0").value;
-    let y0 = +document.getElementById("y0").value;
-    let v0 = +document.getElementById("v0").value;
-    let angle = +document.getElementById("angle").value * Math.PI / 180;
-    let a = +document.getElementById("a").value;
-    let tMax = +document.getElementById("tmax").value;
-    let color = document.getElementById("color").value;
-
-    let dt = 0.1;
     let data = [];
+    const steps = 100;
+    const dt = timeFlight / steps;
 
-    for (let t = -tMax; t <= tMax; t += dt) {
-
-        let vx = v0 * Math.cos(angle);
-        let vy = v0 * Math.sin(angle);
-
-        let x = x0 + vx * t + (a * t * t) / 2;
-        let y = y0 + vy * t + (a * t * t) / 2;
-
-        data.push({ x, y });
+    for (let i = 0; i <= steps; i++) {
+        let t = i * dt;
+        let x = v0 * Math.cos(angleRad) * t;
+        let y = v0 * Math.sin(angleRad) * t - (0.5 * g * t * t);
+        data.push({ x: x, y: Math.max(0, y) });
     }
 
-    allData.push({ data, color });
-    drawAll();
-}
+    // 3. Налаштування SVG
+    const svg = d3.select("#chart");
+    svg.selectAll("*").remove(); // Очищення
 
-function drawAll() {
+    const width = 800;
+    const height = 450;
+    const margin = { top: 40, right: 40, bottom: 50, left: 60 };
 
-    d3.select("#chart").html("");
+    // 4. Створення динамічних шкал (Scales)
+    const xScale = d3.scaleLinear()
+        .domain([0, maxRange * 1.1]) // +10% запасу
+        .range([margin.left, width - margin.right]);
 
-    let width = 700;
-    let height = 500;
-    let margin = 50;
+    const yScale = d3.scaleLinear()
+        .domain([0, maxHeight * 1.2]) // +20% запасу для висоти
+        .range([height - margin.bottom, margin.top]);
 
-    let svg = d3.select("#chart")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    // 5. Осі та сітка
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(xScale).ticks(10))
+        .append("text")
+        .attr("x", width - margin.right)
+        .attr("y", -10)
+        .attr("fill", "black")
+        .text("X (метри)");
 
-    let flatData = allData.flatMap(d => d.data);
+    svg.append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(yScale).ticks(10))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 15)
+        .attr("x", -margin.top)
+        .attr("fill", "black")
+        .text("Y (метри)");
 
-    let xExtent = d3.extent(flatData, d => d.x);
-    let yExtent = d3.extent(flatData, d => d.y);
-
-    // щоб 0 завжди був
-    xExtent[0] = Math.min(xExtent[0], 0);
-    xExtent[1] = Math.max(xExtent[1], 0);
-    yExtent[0] = Math.min(yExtent[0], 0);
-    yExtent[1] = Math.max(yExtent[1], 0);
-
-    let xScale = d3.scaleLinear()
-        .domain(xExtent)
-        .range([margin, width - margin]);
-
-    let yScale = d3.scaleLinear()
-        .domain(yExtent)
-        .range([height - margin, margin]);
-
-    // 🔥 ХРЕСТ (ось X і Y)
-    svg.append("line")
-        .attr("x1", margin)
-        .attr("x2", width - margin)
-        .attr("y1", yScale(0))
-        .attr("y2", yScale(0))
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
-
-    svg.append("line")
-        .attr("y1", margin)
-        .attr("y2", height - margin)
-        .attr("x1", xScale(0))
-        .attr("x2", xScale(0))
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
-
-    let line = d3.line()
+    // 6. Побудова траєкторії
+    const lineGenerator = d3.line()
         .x(d => xScale(d.x))
-        .y(d => yScale(d.y));
+        .y(d => yScale(d.y))
+        .curve(d3.curveBasis); // Згладжування
 
-    allData.forEach(obj => {
+    const path = svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#007bff")
+        .attr("stroke-width", 3)
+        .attr("d", lineGenerator);
 
-        let path = svg.append("path")
-            .datum(obj.data)
-            .attr("fill", "none")
-            .attr("stroke", obj.color)
-            .attr("stroke-width", 2)
-            .attr("d", line);
+    // 7. Анімація лінії
+    const totalLength = path.node().getTotalLength();
+    path
+        .attr("stroke-dasharray", totalLength + " " + totalLength)
+        .attr("stroke-dashoffset", totalLength)
+        .transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
 
-        // плавна анімація
-        let length = path.node().getTotalLength();
+    // 8. Анімація кульки
+    const ball = svg.append("circle")
+        .attr("r", 6)
+        .attr("fill", "#dc3545");
 
-        path
-            .attr("stroke-dasharray", length)
-            .attr("stroke-dashoffset", length)
-            .transition()
-            .duration(1200)
-            .attr("stroke-dashoffset", 0);
-    });
+    ball.transition()
+        .duration(2000)
+        .ease(d3.easeLinear)
+        .attrTween("transform", function() {
+            return function(t) {
+                const point = path.node().getPointAtLength(t * totalLength);
+                return `translate(${point.x},${point.y})`;
+            };
+        });
+
+    // 9. Вивід текстових результатів
+    const resultsDiv = d3.select("#results");
+    resultsDiv.html(`
+        <div class="result-item">Дальність: ${maxRange.toFixed(2)} м</div>
+        <div class="result-item">Висота: ${maxHeight.toFixed(2)} м</div>
+        <div class="result-item">Час: ${timeFlight.toFixed(2)} с</div>
+    `);
 }
 
-function clearChart() {
-    allData = [];
-    d3.select("#chart").html("");
-}
+// Початковий запуск при завантаженні
+window.onload = draw;
