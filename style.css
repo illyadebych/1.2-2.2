@@ -1,81 +1,111 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
+:root {
+    --bg: #1e1e2e;
+    --surface: rgba(49, 50, 68, 0.7);
+    --text: #cdd6f4;
+    --accent: #cba6f7;
+    --lagrange: #89b4fa;
+    --mnc: #a6e3a1;
+    --error: #f38ba8;
 }
 
-.container {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.dashboard {
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
-    max-width: 850px;
-    text-align: center;
+    max-width: 1200px;
+    display: flex;
+    gap: 20px;
 }
 
 .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 25px;
-}
-
-.input-group {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 15px;
 }
 
-input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100px;
+.canvas-container {
+    flex: 3;
+    position: relative;
+    background: rgba(17, 17, 27, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 600px;
+}
+
+h2, h3 { margin-top: 0; color: var(--accent); }
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 15px;
+    border-radius: 6px;
     cursor: pointer;
-    align-self: flex-end;
-    transition: background 0.3s;
+    transition: all 0.2s;
 }
 
-button:hover {
-    background-color: #218838;
-}
+button:hover { background: rgba(255, 255, 255, 0.2); }
+button.active { background: var(--accent); color: #11111b; font-weight: bold; border-color: var(--accent); }
 
-#canvas-container {
-    width: 100%;
-    overflow-x: auto; /* Для мобільних пристроїв */
-}
-
-svg {
-    background: #fafafa;
-    border: 1px solid #eee;
-    margin: 0 auto;
-    display: block;
-    width: 800px;  /* Фіксована ширина для D3 розрахунків */
-    height: 450px;
-}
-
-#results {
+.metrics {
     margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    border-top: 2px solid #eee;
-    padding-top: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 1.1em;
 }
 
-.result-item {
-    font-weight: bold;
-    color: #333;
+.legend {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.color-box { width: 15px; height: 15px; border-radius: 3px; }
+
+#tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.85em;
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
 }
