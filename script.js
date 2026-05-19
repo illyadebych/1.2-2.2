@@ -384,4 +384,4 @@ canvas.addEventListener('mousemove', e => {
 resizeCanvas();
 loadData(5);
 
-лалдоудлоуоамоудлодлоаудлмудомудо
+лалдвдліадлвоадоадвдодлкоа
